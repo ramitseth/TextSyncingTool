@@ -8,7 +8,6 @@ var dbName = "MGRM", collectionName = "Data";
 var mongourl = "mongodb://localhost:27017";
 
 var text, username;
-var isUserPresent = false;
 
 //create a mongo database and a collection while the server starts up
 MongoClient.connect(mongourl, function (err, db) {
@@ -45,7 +44,6 @@ const server = http.createServer((req, res) => {
           console.log(result);
           if (result) {
             result = result.text;
-            isUserPresent = true;
           } else {
             result = "";
           }
@@ -81,34 +79,17 @@ saveData = function () {
     if (err) throw err;
     var localDB = db.db(dbName);
 
-    //Check if the data is already present, before trying to update the row
-    if (isUserPresent) {
       var searchQuery = {
         username: text.username
       };
       var updateQuery = {
         $set: text
       };
-      localDB.collection(collectionName).updateOne(searchQuery, updateQuery, function (err, res) {
+      localDB.collection(collectionName).updateOne(searchQuery, updateQuery, { upsert: true }, function (err, res) {
         if (err) throw err;
         console.log("1 document updated");
         db.close();
-      });
-    } 
-    
-    //If the data is not present already, insert a new row
-    else {
-      var insertQuery = {
-        username: text.username,
-        text: text.text
-      };
-      localDB.collection(collectionName).insertOne(insertQuery, function (err, res) {
-        if (err) throw err;
-        console.log("1 document inserted");
-        isUserPresent = true;
-        db.close();
-      });
-    }
+      });    
   });
 }
 
