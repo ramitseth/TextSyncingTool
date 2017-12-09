@@ -35,7 +35,7 @@ function checkText(htmlText) {
     if (htmlText.value && oldText != htmlText.value) {
         myTimer = setTimeout(function () {
             saveText(htmlText.value)
-        }, 3000);
+        }, 2000);
     }
 }
 

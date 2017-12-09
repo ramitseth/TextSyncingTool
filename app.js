@@ -9,7 +9,7 @@ const dbName = "MGRM";
 const collectionName = "Data";
 const mongourl = "mongodb://localhost:27017";
 
-var oldText = '', newText, username;
+var oldText, newText, username;
 
 //create a mongo database and a collection while the server starts up
 MongoClient.connect(mongourl, function (err, db) {
@@ -18,7 +18,11 @@ MongoClient.connect(mongourl, function (err, db) {
   } else {
     var localDB = db.db(dbName);
     localDB.createCollection(collectionName, function (err, res) {
-      if (err) throw err;
+      if (err) {
+        console.log(err.message);
+      } else {
+        console.log("Mongo DB connection established");
+      }
       db.close();
     });
   }
@@ -47,16 +51,19 @@ const server = http.createServer((req, res) => {
         } else {
           var localDB = db.db(dbName);
           localDB.collection(collectionName).findOne(username, function (err, result) {
-            if (err) throw err;
-            console.log(result);
-            if (result) {
-              result = result.text;
-            } else {
-              result = "";
-            }
-            oldText = result;
-            res.end("{\"Result\": \"" + result + "\"}");
             db.close();
+            if (err) {
+              console.log(err.message);
+              res.end("{\"Result\": \"Error\"}");
+            } else {
+              console.log(result);
+              if (result) {
+                oldText = result.text;
+              } else {
+                oldText = "";
+              }
+              res.end("{\"Result\": \"" + oldText + "\"}");
+            }
           });
         }
       });
@@ -88,7 +95,6 @@ saveData = function () {
   var dmp = new DiffMatchPatch();
   var patches = dmp.patch_fromText(newText.changeslist);
   var results = dmp.patch_apply(patches, oldText);
-  console.log(results[0]);
 
   //Inserting or Updating data in the database
   MongoClient.connect(mongourl, function (err, db) {
@@ -108,9 +114,12 @@ saveData = function () {
       localDB.collection(collectionName).updateOne(searchQuery, updateQuery, {
         upsert: true
       }, function (err, res) {
-        if (err) throw err;
-        oldText = results[0];
-        console.log("1 document updated");
+        if (err) {
+          console.log(err.message);
+        } else {
+          oldText = results[0];
+          console.log("1 document updated");
+        }
         db.close();
       });
     }
