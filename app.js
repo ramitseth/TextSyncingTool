@@ -9,16 +9,19 @@ const dbName = "MGRM";
 const collectionName = "Data";
 const mongourl = "mongodb://localhost:27017";
 
-var oldText, newText, username;
+var oldText = '', newText, username;
 
 //create a mongo database and a collection while the server starts up
 MongoClient.connect(mongourl, function (err, db) {
-  if (err) throw err;
-  var localDB = db.db(dbName);
-  localDB.createCollection(collectionName, function (err, res) {
-    if (err) throw err;
-    db.close();
-  });
+  if (err) {
+    console.log(err.message);
+  } else {
+    var localDB = db.db(dbName);
+    localDB.createCollection(collectionName, function (err, res) {
+      if (err) throw err;
+      db.close();
+    });
+  }
 });
 
 const server = http.createServer((req, res) => {
@@ -39,20 +42,23 @@ const server = http.createServer((req, res) => {
 
       //Try to find the data in database at launch
       MongoClient.connect(mongourl, function (err, db) {
-        if (err) throw err;
-        var localDB = db.db(dbName);
-        localDB.collection(collectionName).findOne(username, function (err, result) {
-          if (err) throw err;
-          console.log(result);
-          if (result) {
-            result = result.text;
-          } else {
-            result = "";
-          }
-          oldText = result;
-          res.end("{\"Result\": \"" + result + "\"}");
-          db.close();
-        });
+        if (err) {
+          console.log(err.message);
+        } else {
+          var localDB = db.db(dbName);
+          localDB.collection(collectionName).findOne(username, function (err, result) {
+            if (err) throw err;
+            console.log(result);
+            if (result) {
+              result = result.text;
+            } else {
+              result = "";
+            }
+            oldText = result;
+            res.end("{\"Result\": \"" + result + "\"}");
+            db.close();
+          });
+        }
       });
     });
 
@@ -86,25 +92,28 @@ saveData = function () {
 
   //Inserting or Updating data in the database
   MongoClient.connect(mongourl, function (err, db) {
-    if (err) throw err;
-    var localDB = db.db(dbName);
+    if (err) {
+      console.log(err.message);
+    } else {
+      var localDB = db.db(dbName);
 
-    var searchQuery = {
-      username: newText.username
-    };
-    var updateQuery = {
-      $set: {
-        text: results[0]
-      }
-    };
-    localDB.collection(collectionName).updateOne(searchQuery, updateQuery, {
-      upsert: true
-    }, function (err, res) {
-      if (err) throw err;
-      oldText = results[0];
-      console.log("1 document updated");
-      db.close();
-    });
+      var searchQuery = {
+        username: newText.username
+      };
+      var updateQuery = {
+        $set: {
+          text: results[0]
+        }
+      };
+      localDB.collection(collectionName).updateOne(searchQuery, updateQuery, {
+        upsert: true
+      }, function (err, res) {
+        if (err) throw err;
+        oldText = results[0];
+        console.log("1 document updated");
+        db.close();
+      });
+    }
   });
 }
 

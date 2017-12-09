@@ -1,5 +1,5 @@
 var BaseURL = 'http://127.0.0.1:3000/';
-var myTimer, oldText;
+var myTimer, oldText = '';
 var dmp = new diff_match_patch();
 
 function init() {
