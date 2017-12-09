@@ -74,7 +74,7 @@ const server = http.createServer((req, res) => {
 
 saveData = function () {
 
-  //Replacing \n (Escape Character) with a "\n" so we can parse it
+  //Replacing \n (Escape Character) with a "\n" so we can parse it --This is to handle Escape characters added in the text by diff module
   newText = newText.replace(/\n/g, "\\n");
 
   //calculate new text after merging the differences

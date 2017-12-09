@@ -11,6 +11,10 @@ function init() {
         type: 'POST',
         success: function (data) {
             if (data) {
+
+                //Replacing \n (Escape Character) with a "\n" so we can parse it --This is to handle Escape characters added in the text by user
+                data = data.replace(/\n/g, "\\n");
+
                 data = JSON.parse(data);
                 $("#text1").val(data.Result);
                 oldText = data.Result;
@@ -42,7 +46,7 @@ function saveText(newText) {
     if (diff.length > 2) {
         dmp.diff_cleanupSemantic(diff);
     }
-    
+
     var patch_list = dmp.patch_make(oldText, newText, diff);
     var patch_text = dmp.patch_toText(patch_list);
 
