@@ -50,7 +50,7 @@ var server = app.listen(port, function () {
 
 
 //Opening a local file in default browser, we can change it to URL later
-opn('client/client-express.html');
+opn('client-express/client.html');
 
 
 // This responds to the request for getting the text

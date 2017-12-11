@@ -132,4 +132,4 @@ server.listen(port, hostname, () => {
 });
 
 //Opening a local file in default browser, we can change it to URL later
-opn('client/client.html');
+opn('client-node/client.html');
